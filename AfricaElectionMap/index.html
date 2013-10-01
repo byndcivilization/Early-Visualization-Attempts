@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>IPI African Elections Map</title>
+        <meta charset="utf-8">
+        <script src="../scripts/libs/d3.v3.min.js"></script>
+        <script src="../scripts/libs/nns.js"></script>
+        <script src="../scripts/libs/polymaps.js"></script>
+        <style>
+            @import url(css/style.css);
+        </style>
+    </head>
+
+    <div id="container" style="width:1000px">
+        <h1>IPI African Elections Map</h1>
+        <g id="map" style="height:360px;width:300px;margin-left: 5px;"></g>
+        <div id="text" style="border:1px solid;height:360px;width:180px;float: left; font-size: 12px;font-family: 'Helvetica';">
+            <div id="country" style="margin-left: 5px; margin-top: 5px;"><b>Country:</b></div><p>
+            <div id="upcoming" style="margin-left: 5px; margin;"><b>Upcoming Elections:</b></div><p>
+            <div id="recent" style="margin-left: 5px; margin;"><b>Recent Elections:</b></div><p>
+            <div id="hos" style="margin-left: 5px; margin;"><b>Current Head of State:</b></div><p>
+            <div id="hog" style="margin-left: 5px; margin;"><b>Current Head of Government:</b></div><p>
+        </div>
+    </div>
+
+    <aside id="source" class="attribution" style="font-size: 10px;font-family: 'Helvetica';">Source: International Peace Institute | Chris Perry</aside>
+    <p id="description" style="width:500px;font-family:'Helvetica';font-size:12px">A map of recent and upcoming elections. *Green* countries have elections coming in the next year. Hover the mouse over a country to read a short analysis of the country.</p>
+    <script src="../scripts/ElectionMapMain.js"></script>
+</html>
