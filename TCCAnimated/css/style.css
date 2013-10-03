@@ -1,0 +1,129 @@
+/*@import url(http://fonts.googleapis.com/css?family=Titillium+Web|Julius+Sans+One);
+font-family: 'Julius Sans One', sans-serif;
+font-family: 'Titillium Web', sans-serif;
+*/
+html {
+  width: 445;
+}
+
+header,
+footer,
+h1,
+h2,
+h3,
+h4{
+  color: #000;
+  font-family: 'Helvetica';
+}
+
+h1 {
+  font-size: 64px;
+  font-weight: 300;
+  letter-spacing: -2px;
+  margin: .3em 0 .1em 0;
+}
+
+h2 {
+  margin-top: 2em;
+}
+
+h1, h2 {
+  text-rendering: optimizeLegibility;
+}
+
+h2 a {
+  color: #ccc;
+  left: -20px;
+  position: absolute;
+  width: 740px;
+}
+
+footer {
+  font-size: small;
+  margin-top: 8em;
+}
+
+.attribution {
+  font-size: small;
+  font-family: 'Helvetica';
+  font-style:oblique;
+}
+
+.aside {
+  font-size: small;
+  font-family: 'Helvetica';
+}
+
+#chart {
+  margin-left: -40px;
+  height: 506px;
+}
+/*Country and quantil formatting*/
+  .countries {
+    fill: #DECFB6;
+    stroke:#fff;
+    stroke-width: 1px;
+  }
+
+ .q0-9{fill:rgb(247,251,255); stroke:#fff; stroke-width: 1.05px;}
+ .q1-9{fill:rgb(222,235,247); stroke:#fff; stroke-width: 1.05px;}
+ .q2-9{fill:rgb(198,219,239); stroke:#fff; stroke-width: 1.05px;}
+ .q3-9{fill:rgb(158,202,225); stroke:#fff; stroke-width: 1.05px;}
+ .q4-9{fill:rgb(107,174,214); stroke:#fff; stroke-width: 1.05px;}
+ .q5-9{fill:rgb(66,146,198); stroke:#fff; stroke-width: 1.05px;}
+ .q6-9{fill:rgb(33,113,181); stroke:#fff; stroke-width: 1.05px;}
+ .q7-9{fill:rgb(8,81,156); stroke:#fff; stroke-width: 1.05px;}
+ .q8-9{fill:rgb(8,48,107); stroke:#fff; stroke-width: 1.05px;}
+
+/*Compass formatting*/
+.compass .back {
+fill: #eee;
+  fill-opacity: .8;
+}
+.compass .fore {
+  stroke: #999;
+  stroke-width: 1.5px;
+}
+.compass rect.back.fore {
+  fill: #999;
+  fill-opacity: .3;
+  stroke: #eee;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}
+.compass .direction {
+  fill: none;
+}
+.compass .chevron {
+  fill: none;
+  stroke: #999;
+  stroke-width: 5px;
+}
+.compass .zoom .chevron {
+  stroke-width: 4px;
+}
+.compass .active .chevron, .compass .chevron.active {
+  stroke: #fff;
+}
+.compass.active .active .direction {
+  fill: #999;
+}
+
+/*Date label formatting*/
+.date.label {
+  font: 900 100px 'Helvetica';
+  -webkit-text-fill-color: #919191;
+  -webkit-text-stroke: 1px;
+  -webkit-text-stroke-color: black;
+  /*fill: #919191;*/
+}
+.date.label.active {
+  fill: #636363;
+}
+
+/*Interactive overlay formatting*/
+.overlay {
+  fill: none;
+  pointer-events: all;
+  cursor: ew-resize;
+}
