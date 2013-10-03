@@ -8,18 +8,13 @@ tccs = json.load(tcc_data)
 codes = json.load(code_data)
 output = []
 
-for date in tccs:
-	for contributor in date["contributions"]:
-		for country in codes:
-			print country
-			# if contributor == country["name"]:
-			# 	output[""]
-			# 	contributor = country["iso3alpha"]
+# print len(tccs)
+for i in range(0,len(tccs),1):
+	output.append({"date":str(tccs[i]["date"]),"countries":{}})
+	for contributor in tccs[i]["countries"]:
+		for code in codes:
+			if contributor == code["name"]:
+				output[i]["countries"][str(code["iso3alpha"])] = tccs[i]["countries"][contributor]
 
-				
-
-
-# for date in tccs:
-# 	print date
-# for country in codes:
-# 	print country["iso3alpha"]
+with open('test.json','w') as outfile:
+	json.dump(output,outfile)
