@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TCC MAP</title>
+        <meta charset="utf-8">
+        <script src="scripts/d3.v3.js"></script>
+        <script src="scripts/polymaps.js"></script>
+        <script src="scripts/nns.js"></script>
+
+        <style>
+            @import url(assets/style.css);
+        </style>
+    </head>
+
+    <h1 style="margin-left: 20px">Interactive Peacekeeping<br>Contributions Map</h1>
+
+    <g id="map" style="margin-left: 20px"></g>
+
+    <p id="source" class="attribution"style="font-family:'Helvetica';font-size:10px;margin-left: 20px">Source: IPI Peacekeeping Database | Chris Perry</p>
+    <p id="description" style="width:900px;font-family:'Helvetica';font-size:12px;margin-left: 20px">Interactive map of contributions to UN Peacekeeping missions over time. The darker the blue, the more troops, police and civilian experts contributed in a given month. Mouse over the month label to control the date.</p>
+
+
+
+    <script>
+        //Polymaps namespace
+        var po = org.polymaps;
+
+        //Chart dimensions
+        var margin = {top: 20, right: 20, bottom: 20, left: 20};
+        var w = 875 - margin.right;
+        var h = 500 - margin.top - margin.bottom;
+
+        // Create the map object, add it to #map div
+        var map = po.map()
+            .container(d3.select("#map").append("svg:svg").attr("width", w + margin.left + margin.right).attr("height",h +margin.top + margin.bottom).node())
+            .center({lat: 28, lon: 10})
+            .zoom(1.9)
+            .zoomRange([1.5, 4.5])
+            .add(po.interact());
+
+        // Add the CloudMade image tiles as a base layer…
+        map.add(po.image()
+            .url(po.url("http://{S}tile.cloudmade.com"
+            + "/1a1b06b230af4efdbb989ea99e9841af" // http://cloudmade.com/register
+            + "/20760/256/{Z}/{X}/{Y}.png")
+            .hosts(["a.", "b.", "c.", ""])));
+
+        //Import contribution data
+        d3.json("assets/tcc.json", function(data){
+            //find length of json data object and loop over it at interval
+            var dataLength = Object.keys(data).length;
+
+            //Create date  key/value array using construtor
+            function date_array_constructor() {
+                var dateArray = {};
+                    for(var i = 0; i < dataLength; i++) {
+                        var d = i + 1;
+                        dateArray[d] =  data[i].date;
+                    }
+                return dateArray;
+            }
+            var dateArray = date_array_constructor();
+
+            //Load geojson data on load
+            map.add(po.geoJson()
+                .url("assets/world.json")
+                .tile(false)
+                .zoom(3)
+                .on("load", load));
+            map.container().setAttribute("class", "Blues");
+            map.add(po.compass()
+                .pan("none"));
+
+            // Insert  date label/control layer and add SVG elements that take on attributes determined by load function
+            var labelLayer = d3.select("#map svg").insert("svg:g");
+
+            function find_max(data, dataLength) {
+                var max = 0;
+                for(var i in data) {
+                    if(data[i] > max) {
+                        max = data[i] + 1;
+                    }
+                }
+                return max;
+            }
+
+            function max_array_constructor(data, dataLength) {
+                var maxArray = {};
+                for(var i=0;i<dataLength;i++) {
+                    var d = i+1;
+                    maxArray[d] = find_max(data[i].contributions);
+                }
+                return maxArray;
+            }
+            var maxArray = max_array_constructor(data, dataLength);
+
+            function contribution_array_constructor(data, dataLength, tccName, feature) {
+                var contributions = {};
+                //iterate over date entries
+                for(var i=0;i<dataLength;i++) {
+                    //contribution iterator
+                    contributions[i+1] = 0;
+                    for(x in data[i].contributions){
+                        if(x == tccName) {
+                            contributions[i+1] = data[i].contributions[x];
+                        }
+                    }
+                }
+                return contributions;
+            }
+
+
+            function format_array_constructor(data, dataLength, maxArray, feature) {
+                var formats = {};
+                for(var i=0;i<dataLength;i++) {
+                    var percentile = feature.data.contributions[i+1] / maxArray[i+1];
+                    if(percentile != 0){
+                        var v = "q" + ((~~(percentile*7)) + 2) + "-" + 9;
+                    }else{
+                        var v = "countries";
+                    }
+                    formats[i+1] = v;
+                }
+                return formats;
+            }
+
+
+            ///////////////////////////////
+            //load function
+            ///////////////////////////////
+            function load(e) {
+                //Bind geojson and json
+                var geojson = e.features;
+                geojson.dates = dateArray;
+                //Set initial state and DOM ids for svg elements
+                for(var x = 0; x < geojson.length; x++) {
+                    // var tccID = geojson[x].data.id;
+                    var tccName = geojson[x].data.properties.name;
+                    geojson[x].data.contributions = contribution_array_constructor(data, dataLength, tccName, geojson[x]);
+                    geojson[x].data.formats = format_array_constructor(data, dataLength, maxArray, geojson[x]);
+                    var n = geojson[x].data.properties.name;
+                    n$(geojson[x].element).attr("id",n);
+                }
+
+                //Load initial state
+                load_country_class_constructor(1, geojson);
+
+                //Insert date label
+                var dateLabel = labelLayer.append("text")
+                    // .attr("class", "date label")
+                    .attr("font-family", "Helvetica")
+                    .attr("font-size", "75px")
+                    .attr("font-weight", "900")
+                    .attr("fill", "#000000")
+                    .attr("stroke", "#ffffff")
+                    .attr("text-anchor", "end")
+                    .attr("x", w-655)
+                    .attr("y", h + 20)
+                    .text(dateArray[1]);
+
+                //Add interactive overlay for date label
+                var box = dateLabel.node().getBBox();
+
+                var overlay = labelLayer.append("rect")
+                    .attr("class", "overlay")
+                    .attr("x", box.x)
+                    .attr("y", box.y)
+                    .attr("opacity",0)
+                    .attr("width", box.width)
+                    .attr("height", box.height)
+                    .on("mouseover",enable_interaction);
+
+                //Function to change country class on animation
+                function country_class_constructor(local, geojson){
+                    for(var x=0;x<geojson.length;x++){
+                        var n = geojson[x].data.properties.name;
+                        element = document.getElementById(n);
+                        element.className["animVal"] = geojson[x].data.formats[local];
+                        element.className["baseVal"] = geojson[x].data.formats[local];
+                    }
+                }
+
+                //Function to set initial class state
+                function load_country_class_constructor(local, geojson){
+                    for(var x=0;x<geojson.length;x++){
+                        var n = geojson[x].data.properties.name;
+                        n$(geojson[x].element)
+                            .attr("class", geojson[x].data.formats[local])
+                            .add("svg:title");
+                    }
+                }
+
+                ///////////////////////////////
+                //interaction element
+                ///////////////////////////////
+                function enable_interaction(){
+                    var dateScale = d3.scale.linear()
+                        .domain([1,Object.keys(dateArray).length])
+                        .range([box.x + 10, box.x + box.width - 10])
+                        .clamp(true);
+
+                    overlay
+                        .on("mouseover", mouse_over)
+                        .on("mouseout",mouse_out)
+                        .on("mousemove",mouse_move)
+                        .on("touchmove",mouse_move);
+
+                    function mouse_over() {
+                        dateLabel.attr("fill", "#8DA4BA");
+                    }
+
+                    function mouse_out() {
+                        dateLabel.attr("fill", "#000000");
+                    }
+
+                    function mouse_move() {
+                        update_map(dateScale.invert(d3.mouse(this)[0]),data);
+                    }
+
+                    function update_map(userInput) {
+                        var date = Math.floor(userInput);
+                        d3.transition(dateLabel).text(dateArray[date]);
+                        country_class_constructor(date, geojson);
+                    }
+                }
+            }
+        });
+    </script>
+
+</html>
